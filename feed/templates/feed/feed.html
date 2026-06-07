@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block content %}
+  {% for item in object_list %}
+    <article>
+      <strong>
+        <a href="{{ item.content.link }}" target="_blank" rel="noopener">{{ item.content.title }}</a>
+      </strong>
+      {% if item.is_paper %}
+        <small>Research Paper | {{ item.content.journal }} | {{ item.content.date|naturalday }}</small>
+      {% endif %}
+      {% if item.is_article %}
+        <details>
+          <summary>
+            <small>News Article | {{ item.content.source }} | {{ item.content.date|naturalday }}</small>
+          </summary>
+          <p>{{ item.content.summary|safe }}</p>
+        </details>
+      {% endif %}
+      {% if item.is_trial %}
+        <details>
+          <summary>
+            <small>Clinical Trial | {{ item.content.get_status_display }} | {{ item.content.get_phase_display }} | {{ item.content.date|naturalday }}</small>
+          </summary>
+          <p>{{ item.content.summary }}</p>
+        </details>
+      {% endif %}
+    </article>
+  {% endfor %}
+  <nav>
+    {% if page_obj.has_previous %}
+      <a href="{% querystring page=page_obj.previous_page_number %}">← Previous</a>
+    {% endif %}
+    {% if page_obj.has_next %}
+      <a href="{% querystring page=page_obj.next_page_number %}">Next →</a>
+    {% endif %}
+  </nav>
+{% endblock %}

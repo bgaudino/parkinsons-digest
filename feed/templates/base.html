@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+      {% block title %}Parkinson's Digest{% endblock %}
+    </title>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <nav class="container">
+      <ul>
+        <li>
+          <strong>
+            <a href="{% url 'feed' %}">Parkinson's Digest</a>
+          </strong>
+        </li>
+      </ul>
+      <ul>
+        <li>
+          <a href="{% url 'feed' %}">All</a>
+        </li>
+        <li>
+          <a href="{% url 'feed' %}?type=research">Research</a>
+        </li>
+        <li>
+          <a href="{% url 'feed' %}?type=trial">Trials</a>
+        </li>
+        <li>
+          <a href="{% url 'feed' %}?type=news">News</a>
+        </li>
+      </ul>
+    </nav>
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="container">
+      <hr>
+      <small>Aggregated Parkinson's research, clinical trials, and news.</small>
+    </footer>
+  </body>
+</html>

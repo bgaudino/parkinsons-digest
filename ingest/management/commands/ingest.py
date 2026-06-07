@@ -1,0 +1,9 @@
+from django.core.management.base import BaseCommand
+from django.core.management import call_command
+
+
+class Command(BaseCommand):
+    def handle(self, *args, **options):
+        call_command("ingest_trials")
+        call_command("ingest_rss")
+        call_command("ingest_papers")
