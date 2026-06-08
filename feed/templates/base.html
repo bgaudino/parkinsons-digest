@@ -7,32 +7,18 @@
       {% block title %}Parkinson's Digest{% endblock %}
     </title>
     <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+          href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     {% block extra_head %}{% endblock %}
   </head>
   <body>
-    <nav class="container">
-      <ul>
-        <li>
-          <strong>
-            <a href="{% url 'feed' %}">Parkinson's Digest</a>
-          </strong>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <a href="{% url 'feed' %}">All</a>
-        </li>
-        <li>
-          <a href="{% url 'feed' %}?type=research">Research</a>
-        </li>
-        <li>
-          <a href="{% url 'feed' %}?type=trial">Trials</a>
-        </li>
-        <li>
-          <a href="{% url 'feed' %}?type=news">News</a>
-        </li>
-      </ul>
+    <nav class="container navbar"
+         role="navigation"
+         aria-label="main navigation">
+      <div class="navbar-brand">
+        <div class="navbar-item">
+          <strong>Parkinson's Digest</strong>
+        </div>
+      </div>
     </nav>
     <main class="container">
       {% block content %}{% endblock %}

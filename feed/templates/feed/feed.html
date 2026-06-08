@@ -1,38 +1,113 @@
 {% extends "base.html" %}
 {% load humanize %}
 {% block content %}
+  <div class="tabs">
+    <ul>
+      <li {% if not request.GET.content_type %}class="is-active"{% endif %}>
+        <a href="{% url 'feed' %}">All</a>
+      </li>
+      <li {% if request.GET.content_type == "research" %}class="is-active"{% endif %}>
+        <a href="{% url 'feed' %}?content_type=research">Research</a>
+      </li>
+      <li {% if request.GET.content_type == "trial" %}class="is-active"{% endif %}>
+        <a href="{% url 'feed' %}?content_type=trial">Trials</a>
+      </li>
+      <li {% if request.GET.content_type == "article" %}class="is-active"{% endif %}>
+        <a href="{% url 'feed' %}?content_type=article">News</a>
+      </li>
+    </ul>
+  </div>
+  <form method="get" class="block">
+    <div class="field has-addons">
+      <div class="control is-expanded">
+        <input class="input"
+               type="search"
+               name="search"
+               value="{{ request.GET.search }}"
+               placeholder="Search Parkinson's updates...">
+      </div>
+      <div class="control">
+        <button class="button is-primary" type="submit">Search</button>
+      </div>
+    </div>
+    {% if request.GET.content_type %}
+      <input type="hidden"
+             name="content_type"
+             value="{{ request.GET.content_type }}">
+    {% endif %}
+    {% if request.GET.content_type == "trial" %}
+      <div class="field is-grouped is-grouped-multiline">
+        <div class="control">
+          <div class="select">
+            <select name="phase">
+              <option value="">All phases</option>
+              {% for choice in form.phase.field.choices %}
+                {% if choice.0 %}
+                  <option value="{{ choice.0 }}"
+                          {% if request.GET.phase == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="control">
+          <div class="select">
+            <select name="status">
+              <option value="">All statuses</option>
+              {% for choice in form.status.field.choices %}
+                {% if choice.0 %}
+                  <option value="{{ choice.0 }}"
+                          {% if request.GET.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="control">
+          <button class="button is-primary" type="submit">Apply</button>
+        </div>
+      </div>
+    {% endif %}
+  </form>
   {% for item in object_list %}
-    <article>
-      <strong>
-        <a href="{{ item.content.link }}" target="_blank" rel="noopener">{{ item.content.title }}</a>
-      </strong>
-      {% if item.is_paper %}
-        <small>Research Paper | {{ item.content.journal }} | {{ item.content.date|naturalday }}</small>
-      {% endif %}
-      {% if item.is_article %}
-        <details>
-          <summary>
-            <small>News Article | {{ item.content.source }} | {{ item.content.date|naturalday }}</small>
-          </summary>
-          <p>{{ item.content.summary|safe }}</p>
-        </details>
-      {% endif %}
-      {% if item.is_trial %}
-        <details>
-          <summary>
-            <small>Clinical Trial | {{ item.content.get_status_display }} | {{ item.content.get_phase_display }} | {{ item.content.date|naturalday }}</small>
-          </summary>
-          <p>{{ item.content.summary }}</p>
-        </details>
-      {% endif %}
+    <article class="media">
+      <div class="media-content">
+        <div class="content">
+          <strong>
+            <a href="{{ item.content.link }}" target="_blank" rel="noopener">{{ item.content.title }}</a>
+          </strong>
+          <div class="is-flex is-gap-2 is-align-items-center mt-1">
+            {% if item.is_trial %}
+              <span class="tag is-info">Trial</span>
+              <span class="tag is-light">{{ item.content.get_phase_display }}</span>
+              <span class="tag is-light">{{ item.content.get_status_display }}</span>
+            {% elif item.is_article %}
+              <span class="tag is-primary">News</span>
+              <small>{{ item.content.source }}</small>
+            {% elif item.is_paper %}
+              <span class="tag is-success">Research</span>
+              <small>{{ item.content.journal }}</small>
+            {% endif %}
+            <small>{{ item.content.date|naturalday }}</small>
+          </div>
+        </div>
+      </div>
     </article>
   {% endfor %}
-  <nav>
+  <nav class="pagination is-centered"
+       role="navigation"
+       aria-label="pagination">
     {% if page_obj.has_previous %}
-      <a href="{% querystring page=page_obj.previous_page_number %}">← Previous</a>
+      <a href="{% querystring page=page_obj.previous_page_number %}"
+         class="pagination-previous">Previous</a>
+    {% else %}
+      <button class="pagination-previous" disabled>Previous</button>
     {% endif %}
     {% if page_obj.has_next %}
-      <a href="{% querystring page=page_obj.next_page_number %}">Next →</a>
+      <a href="{% querystring page=page_obj.next_page_number %}"
+         class="pagination-next">Next</a>
+    {% else %}
+      <button class="pagination-next" disabled>Next</button>
     {% endif %}
   </nav>
 {% endblock %}

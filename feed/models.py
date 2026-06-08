@@ -249,3 +249,12 @@ class FeedItem(models.Model):
     @property
     def is_trial(self):
         return self.trial is not None
+
+    @property
+    def content_type(self):
+        if self.trial:
+            return "trial"
+        elif self.article:
+            return "article"
+        elif self.paper:
+            return "research"
