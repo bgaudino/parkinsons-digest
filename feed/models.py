@@ -5,7 +5,7 @@ from django.db import models
 
 
 class ContentBase(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField()
     summary = models.TextField()
     date = models.DateTimeField(null=True, blank=True)
     raw = models.JSONField(default=dict)
@@ -164,7 +164,7 @@ class Article(ContentBase):
 class Paper(ContentBase):
     pmid = models.BigIntegerField(unique=True)
     authors = models.TextField()
-    journal = models.CharField(max_length=255)
+    journal = models.CharField()
 
     def __str__(self):
         return self.title
