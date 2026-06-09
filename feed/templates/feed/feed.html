@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load humanize %}
+{% load humanize feed_tags %}
 {% block content %}
   <div class="tabs">
     <ul>
@@ -90,7 +90,7 @@
               <option value="">All sources</option>
               {% for source in sources %}
                 <option value="{{ source }}"
-                        {% if request.GET.source == source %}selected{% endif %}>{{ source }}</option>
+                        {% if request.GET.source == source %}selected{% endif %}>{{ source|brief_source }}</option>
               {% endfor %}
             </select>
           </div>
