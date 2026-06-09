@@ -1,4 +1,4 @@
-from django.db.models import Case, When, DateTimeField
+from django.db.models import Case, When, DateTimeField, F
 
 from django.views.generic import ListView
 
@@ -22,7 +22,7 @@ class Feed(ListView):
                     output_field=DateTimeField(),
                 )
             )
-            .order_by("-date")
+            .order_by(F("date").desc(nulls_last=True))
         )
         return FeedItemFilter(self.request.GET, queryset=qs).qs
 
