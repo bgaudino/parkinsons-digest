@@ -1,4 +1,6 @@
 from django.db.models import Case, When, DateTimeField, F
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 from django.views.generic import ListView
 
@@ -7,6 +9,7 @@ from .models import FeedItem
 from .filters import FeedItemFilter
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class Feed(ListView):
     template_name = "feed/feed.html"
     paginate_by = 20
