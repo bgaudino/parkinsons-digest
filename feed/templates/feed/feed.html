@@ -63,9 +63,39 @@
             </select>
           </div>
         </div>
+        {% include "feed/partials/_filter_buttons.html" %}
+      </div>
+    {% endif %}
+    {% if request.GET.content_type == "research" %}
+      <div class="field is-grouped is-grouped-multiline">
         <div class="control">
-          <button class="button is-primary" type="submit">Apply</button>
+          <input class="input"
+                 type="text"
+                 name="journal"
+                 value="{{ request.GET.journal }}"
+                 list="journals"
+                 placeholder="Filter by journal...">
+          <datalist id="journals">
+            {% for journal in journals %}<option value="{{ journal }}"></option>{% endfor %}
+          </datalist>
         </div>
+        {% include "feed/partials/_filter_buttons.html" %}
+      </div>
+    {% endif %}
+    {% if request.GET.content_type == "article" %}
+      <div class="field is-grouped is-grouped-multiline">
+        <div class="control">
+          <div class="select">
+            <select name="source">
+              <option value="">All sources</option>
+              {% for source in sources %}
+                <option value="{{ source }}"
+                        {% if request.GET.source == source %}selected{% endif %}>{{ source }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        {% include "feed/partials/_filter_buttons.html" %}
       </div>
     {% endif %}
   </form>

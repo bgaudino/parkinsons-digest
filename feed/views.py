@@ -4,7 +4,7 @@ from django.views.decorators.cache import cache_page
 
 from django.views.generic import ListView
 
-from .models import FeedItem
+from .models import FeedItem, Paper, Article
 
 from .filters import FeedItemFilter
 
@@ -32,4 +32,17 @@ class Feed(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["form"] = FeedItemFilter(self.request.GET).form
+        context["journals"] = (
+            Paper.objects.order_by("journal")
+            .exclude(journal="")
+            .values_list("journal", flat=True)
+            .distinct()
+        )
+        context["sources"] = (
+            Article.objects.order_by("source")
+            .exclude(source="")
+            .values_list("source", flat=True)
+            .distinct()
+        )
+
         return context

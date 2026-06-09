@@ -16,10 +16,16 @@ class FeedItemFilter(django_filters.FilterSet):
     phase = django_filters.ChoiceFilter(
         field_name="trial__phase", lookup_expr="iexact", choices=TrialPhase.choices
     )
+    journal = django_filters.CharFilter(
+        field_name="paper__journal", lookup_expr="iexact"
+    )
+    source = django_filters.CharFilter(
+        field_name="article__source", lookup_expr="iexact"
+    )
 
     class Meta:
         model = FeedItem
-        fields = ("content_type", "status", "phase")
+        fields = ("content_type", "status", "phase", "journal", "source")
 
     def filter_content_type(self, queryset, name, value):
         match value:
