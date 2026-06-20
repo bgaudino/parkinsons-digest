@@ -1,0 +1,15 @@
+services:
+  db:
+    platform: linux/amd64
+    image: postgis/postgis:16-3.5
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: parkinsons_digest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

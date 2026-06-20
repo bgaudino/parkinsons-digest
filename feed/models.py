@@ -2,6 +2,7 @@ from datetime import datetime
 from email.utils import parsedate_to_datetime
 
 from django.db import models
+from django.contrib.gis.db.models import PointField
 
 
 class ContentBase(models.Model):
@@ -108,6 +109,7 @@ class Trial(ContentBase):
                 },
             )
             FeedItem.objects.get_or_create(trial=instance)
+            return instance
         return cls(
             nct_id=id_module["nctId"],
             title=id_module["briefTitle"],
@@ -122,6 +124,21 @@ class Trial(ContentBase):
                 status_module.get("lastUpdatePostDateStruct", {}).get("date")
             ),
             raw=data,
+        )
+
+
+class TrialLocation(models.Model):
+    trial = models.ForeignKey(Trial, on_delete=models.CASCADE)
+    facility = models.CharField(blank=True)
+    city = models.CharField(blank=True)
+    state = models.CharField(blank=True)
+    country = models.CharField(blank=True)
+    point = PointField(null=True, geography=True, spatial_index=True)
+    raw = models.JSONField(default=dict)
+
+    def __str__(self):
+        return ", ".join(
+            filter(bool, [self.facility, self.city, self.state, self.country])
         )
 
 
@@ -151,6 +168,7 @@ class Article(ContentBase):
                 },
             )
             FeedItem.objects.get_or_create(article=instance)
+            return instance
         return cls(
             title=entry.title,
             link=entry.link,
@@ -191,6 +209,7 @@ class Paper(ContentBase):
                 },
             )
             FeedItem.objects.get_or_create(paper=instance)
+            return instance
         return cls(
             pmid=data["uid"],
             title=data["title"],

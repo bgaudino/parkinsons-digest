@@ -27,7 +27,7 @@ class Feed(ListView):
             )
             .order_by(F("date").desc(nulls_last=True))
         )
-        return FeedItemFilter(self.request.GET, queryset=qs).qs
+        return FeedItemFilter(self.request.GET, queryset=qs, request=self.request).qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,6 +1,10 @@
-import django_filters
-
+from django.conf import settings
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
 from django.db.models import Q
+
+import django_filters
+import requests
 
 from feed.models import FeedItem, TrialStatus, TrialPhase
 
@@ -22,10 +26,11 @@ class FeedItemFilter(django_filters.FilterSet):
     source = django_filters.CharFilter(
         field_name="article__source", lookup_expr="iexact"
     )
+    zipcode = django_filters.CharFilter(method="filter_zipcode")
 
     class Meta:
         model = FeedItem
-        fields = ("content_type", "status", "phase", "journal", "source")
+        fields = ("content_type", "status", "phase", "journal", "source", "zipcode")
 
     def filter_content_type(self, queryset, name, value):
         match value:
@@ -54,3 +59,29 @@ class FeedItemFilter(django_filters.FilterSet):
             | Q(paper__authors__icontains=value)
             | Q(paper__journal__icontains=value)
         )
+
+    def filter_zipcode(self, queryset, name, value):
+        default_radius = 25
+        lat, lon = get_latlong(value)
+        if lat is None or lon is None:
+            return queryset.none()
+        user_point = Point(lon, lat, srid=4326)
+        try:
+            radius = int(self.request.GET.get("distance", default_radius))
+        except (ValueError, TypeError):
+            radius = default_radius
+        return queryset.filter(
+            trial__triallocation__point__dwithin=(user_point, D(mi=radius))
+        ).distinct()
+
+
+def get_latlong(zipcode):
+    response = requests.get(
+        "https://api.openweathermap.org/geo/1.0/zip",
+        params={"zip": f"{zipcode},US", "appid": settings.OPEN_WEATHER_API_KEY},
+    )
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("lat"), data.get("lon")
+    else:
+        return None, None

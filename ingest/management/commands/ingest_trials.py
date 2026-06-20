@@ -1,10 +1,11 @@
 import logging
 
+from django.contrib.gis.geos import Point
 from django.core.management.base import BaseCommand
 
 import requests
 
-from feed.models import Trial, FeedItem
+from feed.models import Trial, FeedItem, TrialLocation
 
 
 logger = logging.getLogger(__name__)
@@ -22,22 +23,39 @@ class Command(BaseCommand):
                 params = {}
             response = requests.get(BASE_URL, params=BASE_PARAMS | params)
             data = response.json()
-            trials = [Trial.ingest(trial, commit=False) for trial in data["studies"]]
-            Trial.objects.bulk_create(
-                trials,
-                update_conflicts=True,
-                unique_fields=["nct_id"],
-                update_fields=[
-                    "title",
-                    "summary",
-                    "status",
-                    "start_date",
-                    "completion_date",
-                    "last_update",
-                    "phase",
-                    "raw",
-                ],
-            )
+            trials = []
+            for study in data["studies"]:
+                trial = Trial.ingest(study)
+                locations = (
+                    trial.raw.get("protocolSection", {})
+                    .get("contactsLocationsModule", {})
+                    .get("locations", [])
+                )
+                trial_locations = []
+                for location in locations:
+                    point = None
+                    if (
+                        location.get("geoPoint", {}).get("lat") is not None
+                        and location.get("geoPoint", {}).get("lon") is not None
+                    ):
+                        point = Point(
+                            x=location["geoPoint"]["lon"],
+                            y=location["geoPoint"]["lat"],
+                            srid=4326,
+                        )
+                    trial_locations.append(
+                        TrialLocation(
+                            trial=trial,
+                            facility=location.get("facility", ""),
+                            city=location.get("city", ""),
+                            state=location.get("state", ""),
+                            country=location.get("country", ""),
+                            point=point,
+                            raw=location,
+                        )
+                    )
+                TrialLocation.objects.bulk_create(trial_locations)
+                trials.append(trial)
             feed_items = [FeedItem(trial=trial) for trial in trials]
             FeedItem.objects.bulk_create(
                 feed_items,

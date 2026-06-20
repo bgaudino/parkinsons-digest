@@ -63,6 +63,22 @@
             </select>
           </div>
         </div>
+        <div class="control">
+          <input class="input"
+                 name="zipcode"
+                 value="{{ request.GET.zipcode }}"
+                 placeholder="Filter by zipcode...">
+        </div>
+        <div class="control">
+           <div class="select">
+             <select name="distance">
+               <option value="25" {% if request.GET.distance == "25" %}selected{% endif %}>25 miles</option>
+               <option value="50" {% if request.GET.distance == "50" %}selected{% endif %}>50 miles</option>
+               <option value="100" {% if request.GET.distance == "100" %}selected{% endif %}>100 miles</option>
+               <option value="200" {% if request.GET.distance == "200" %}selected{% endif %}>200 miles</option>
+             </select>
+           </div>
+        </div>
         {% include "feed/partials/_filter_buttons.html" %}
       </div>
     {% endif %}
