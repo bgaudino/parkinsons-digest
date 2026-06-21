@@ -10,7 +10,7 @@
         <a href="{% url 'feed' %}?content_type=research">Research</a>
       </li>
       <li {% if request.GET.content_type == "trial" %}class="is-active"{% endif %}>
-        <a href="{% url 'feed' %}?content_type=trial">Trials</a>
+        <a href="{% url 'feed' %}?content_type=trial&status=open">Trials</a>
       </li>
       <li {% if request.GET.content_type == "article" %}class="is-active"{% endif %}>
         <a href="{% url 'feed' %}?content_type=article">News</a>
@@ -42,7 +42,7 @@
             <select name="phase">
               <option value="">All phases</option>
               {% for choice in form.phase.field.choices %}
-                {% if choice.0 %}
+                {% if choice.0 and choice.0 != "NA" %}
                   <option value="{{ choice.0 }}"
                           {% if request.GET.phase == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
                 {% endif %}
@@ -53,13 +53,16 @@
         <div class="control">
           <div class="select">
             <select name="status">
-              <option value="">All statuses</option>
-              {% for choice in form.status.field.choices %}
-                {% if choice.0 %}
-                  <option value="{{ choice.0 }}"
-                          {% if request.GET.status == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
-                {% endif %}
-              {% endfor %}
+              <option value="" {% if not request.GET.status %}selected{% endif %}>All statuses</option>
+              <option value="open" {% if request.GET.status == "open" %}selected{% endif %}>
+                Open (recruiting or opening soon)
+              </option>
+              <option value="active_not_recruiting"
+                      {% if request.GET.status == "active_not_recruiting" %}selected{% endif %}>
+                Active, not recruiting
+              </option>
+              <option value="completed"
+                      {% if request.GET.status == "completed" %}selected{% endif %}>Completed</option>
             </select>
           </div>
         </div>

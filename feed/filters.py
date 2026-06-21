@@ -15,8 +15,9 @@ class FeedItemFilter(django_filters.FilterSet):
     content_type = django_filters.CharFilter(
         field_name="content_type", method="filter_content_type"
     )
-    status = django_filters.ChoiceFilter(
-        field_name="trial__status", lookup_expr="iexact", choices=TrialStatus.choices
+    status = django_filters.CharFilter(
+        field_name="trial__status",
+        method="filter_status",
     )
     phase = django_filters.ChoiceFilter(
         field_name="trial__phase", lookup_expr="iexact", choices=TrialPhase.choices
@@ -43,6 +44,19 @@ class FeedItemFilter(django_filters.FilterSet):
                 queryset = queryset.filter(article__isnull=False)
             case _:
                 return queryset
+        return queryset
+
+    def filter_status(self, queryset, name, value):
+        normalized = value.lower().strip()
+        if normalized == "open":
+            return queryset.filter(
+                trial__status__in=(
+                    TrialStatus.RECRUITING,
+                    TrialStatus.NOT_YET_RECRUITING,
+                )
+            )
+        elif normalized:
+            return queryset.filter(trial__status__iexact=normalized)
         return queryset
 
     def filter_search(self, queryset, name, value):

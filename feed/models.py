@@ -35,13 +35,13 @@ class TrialStatus(models.TextChoices):
 
 
 class TrialPhase(models.TextChoices):
+    EARLY_PHASE_1 = "EARLY_PHASE1", "Early Phase 1"
     PHASE_1 = "PHASE1", "Phase 1"
     PHASE_2 = "PHASE2", "Phase 2"
     PHASE_3 = "PHASE3", "Phase 3"
     PHASE_4 = "PHASE4", "Phase 4"
     PHASE_1_2 = "PHASE1/PHASE2", "Phase 1/2"
     PHASE_2_3 = "PHASE2/PHASE3", "Phase 2/3"
-    EARLY_PHASE_1 = "EARLY_PHASE1", "Early Phase 1"
     NA = "NA", "N/A"
 
 
