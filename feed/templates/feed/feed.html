@@ -70,14 +70,14 @@
                  placeholder="Filter by zipcode...">
         </div>
         <div class="control">
-           <div class="select">
-             <select name="distance">
-               <option value="25" {% if request.GET.distance == "25" %}selected{% endif %}>25 miles</option>
-               <option value="50" {% if request.GET.distance == "50" %}selected{% endif %}>50 miles</option>
-               <option value="100" {% if request.GET.distance == "100" %}selected{% endif %}>100 miles</option>
-               <option value="200" {% if request.GET.distance == "200" %}selected{% endif %}>200 miles</option>
-             </select>
-           </div>
+          <div class="select">
+            <select name="distance">
+              <option value="25" {% if request.GET.distance == "25" %}selected{% endif %}>25 miles</option>
+              <option value="50" {% if request.GET.distance == "50" %}selected{% endif %}>50 miles</option>
+              <option value="100" {% if request.GET.distance == "100" %}selected{% endif %}>100 miles</option>
+              <option value="200" {% if request.GET.distance == "200" %}selected{% endif %}>200 miles</option>
+            </select>
+          </div>
         </div>
         {% include "feed/partials/_filter_buttons.html" %}
       </div>
@@ -122,6 +122,15 @@
           <strong>
             <a href="{{ item.content.link }}" target="_blank" rel="noopener">{{ item.content.title }}</a>
           </strong>
+          {% if item.is_trial and item.nearest_distance %}
+            <p class="m-0">
+              <small>
+                {% if item.nearest_facility %}{{ item.nearest_facility }},{% endif %}
+                {% if item.nearest_city %}{{ item.nearest_city }}{% endif %}
+                · {{ item.nearest_distance|distance_miles }} away
+              </small>
+            </p>
+          {% endif %}
           <div class="is-flex is-gap-2 is-align-items-center mt-1">
             {% if item.is_trial %}
               <span class="tag is-info">Trial</span>

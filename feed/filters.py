@@ -1,12 +1,13 @@
 from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef, Subquery
 
 import django_filters
 import requests
 
-from feed.models import FeedItem, TrialStatus, TrialPhase
+from feed.models import FeedItem, TrialLocation, TrialStatus, TrialPhase
 
 
 class FeedItemFilter(django_filters.FilterSet):
@@ -70,9 +71,18 @@ class FeedItemFilter(django_filters.FilterSet):
             radius = int(self.request.GET.get("distance", default_radius))
         except (ValueError, TypeError):
             radius = default_radius
-        return queryset.filter(
-            trial__triallocation__point__dwithin=(user_point, D(mi=radius))
-        ).distinct()
+        nearby_locations = (
+            TrialLocation.objects.filter(
+                trial=OuterRef("trial_id"), point__dwithin=(user_point, D(mi=radius))
+            )
+            .annotate(distance=Distance("point", user_point))
+            .order_by("distance")
+        )
+        return queryset.filter(Exists(nearby_locations.values("id")[:1])).annotate(
+            nearest_distance=Subquery(nearby_locations.values("distance")[:1]),
+            nearest_city=Subquery(nearby_locations.values("city")[:1]),
+            nearest_facility=Subquery(nearby_locations.values("facility")[:1]),
+        )
 
 
 def get_latlong(zipcode):
