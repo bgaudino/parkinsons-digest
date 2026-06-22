@@ -2,7 +2,11 @@ from .settings import *  # noqa: F401,F403
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["parkinsons-digest-055d912d3991.herokuapp.com"]
+ALLOWED_HOSTS = [
+    "parkinsons-digest-055d912d3991.herokuapp.com",
+    "www.parkinsonsdigest.org",
+    "parkinsonsdigest.org",
+]
 
 STORAGES = {
     "default": {
