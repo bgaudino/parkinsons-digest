@@ -1,11 +1,10 @@
-from django.db.models import Case, When, DateTimeField, F
+from django.db.models import F
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 
 from django.views.generic import ListView
 
 from .models import FeedItem, Paper, Article
-
 from .filters import FeedItemFilter
 
 
@@ -17,14 +16,8 @@ class Feed(ListView):
     def get_queryset(self):
         qs = (
             FeedItem.objects.select_related("trial", "article", "paper")
-            .annotate(
-                date=Case(
-                    When(trial__isnull=False, then="trial__date"),
-                    When(article__isnull=False, then="article__date"),
-                    When(paper__isnull=False, then="paper__date"),
-                    output_field=DateTimeField(),
-                )
-            )
+            .with_date()
+            .relevant()
             .order_by(F("date").desc(nulls_last=True))
         )
         return FeedItemFilter(self.request.GET, queryset=qs, request=self.request).qs

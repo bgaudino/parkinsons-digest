@@ -4,6 +4,8 @@ from email.utils import parsedate_to_datetime
 from django.db import models
 from django.contrib.gis.db.models import PointField
 
+from feed.constants import PD_TERMS
+
 
 class ContentBase(models.Model):
     title = models.CharField()
@@ -45,6 +47,12 @@ class TrialPhase(models.TextChoices):
     NA = "NA", "N/A"
 
 
+class TrialRelevance(models.TextChoices):
+    PD = "pd"
+    RELATED = "related"
+    OTHER = "other"
+
+
 class Trial(ContentBase):
     nct_id = models.CharField(unique=True)
     status = models.CharField(choices=TrialStatus.choices)
@@ -62,6 +70,9 @@ class Trial(ContentBase):
         ),
         output_field=models.DateTimeField(),
         db_persist=True,
+    )
+    relevance = models.CharField(
+        choices=TrialRelevance.choices, default=TrialRelevance.OTHER
     )
 
     def __str__(self):
@@ -88,6 +99,7 @@ class Trial(ContentBase):
         status_module = protocal_section["statusModule"]
         design_module = protocal_section["designModule"]
         phase = design_module.get("phases", [TrialPhase.NA])[0]
+        relevance = classify_trial_relevance(data)
         if commit:
             instance, _ = cls.objects.update_or_create(
                 nct_id=id_module["nctId"],
@@ -106,6 +118,7 @@ class Trial(ContentBase):
                         status_module.get("lastUpdatePostDateStruct", {}).get("date")
                     ),
                     "raw": data,
+                    "relevance": relevance,
                 },
             )
             FeedItem.objects.get_or_create(trial=instance)
@@ -123,8 +136,21 @@ class Trial(ContentBase):
             last_update=parse_date(
                 status_module.get("lastUpdatePostDateStruct", {}).get("date")
             ),
+            relevance=relevance,
             raw=data,
         )
+
+
+def classify_trial_relevance(raw):
+    conditions = (
+        raw.get("protocolSection", {}).get("conditionsModule", {}).get("conditions", [])
+    )
+    for condition in conditions:
+        if "Parkinson" in condition:
+            return TrialRelevance.PD
+        elif any(term in condition for term in PD_TERMS):
+            return TrialRelevance.RELATED
+    return TrialRelevance.OTHER
 
 
 class TrialLocation(models.Model):
@@ -220,12 +246,32 @@ class Paper(ContentBase):
         )
 
 
+class FeedItemQuerySet(models.QuerySet):
+    def with_date(self):
+        return self.annotate(
+            date=models.Case(
+                models.When(trial__isnull=False, then="trial__date"),
+                models.When(article__isnull=False, then="article__date"),
+                models.When(paper__isnull=False, then="paper__date"),
+                output_field=models.DateTimeField(),
+            )
+        )
+
+    def relevant(self):
+        return self.filter(
+            models.Q(trial__isnull=True)
+            | models.Q(trial__relevance__in=[TrialRelevance.PD, TrialRelevance.RELATED])
+        )
+
+
 class FeedItem(models.Model):
     trial = models.OneToOneField(Trial, on_delete=models.CASCADE, null=True, blank=True)
     article = models.OneToOneField(
         Article, on_delete=models.CASCADE, null=True, blank=True
     )
     paper = models.OneToOneField(Paper, on_delete=models.CASCADE, null=True, blank=True)
+
+    objects = FeedItemQuerySet.as_manager()
 
     class Meta:
         constraints = [

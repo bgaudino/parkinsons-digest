@@ -1,0 +1,17 @@
+PD_TERMS = [
+    "Parkinson",
+    "Levodopa",
+    "Deep Brain Stimulation",
+    "Dyskinesia",
+    "Dystonia",
+    "Freezing of Gait",
+    "Gait Disorder",
+    "Lewy Body",
+    "Multiple System Atrophy",
+    "Postural Instability Gait Disorders",
+    "Progressive Supranuclear Palsy",
+    "REM Sleep Behavior Disorder",
+    "Rapid Eye Movement Sleep Behavior Disorder",
+    "Tremor",
+    "UPDRS",
+]
