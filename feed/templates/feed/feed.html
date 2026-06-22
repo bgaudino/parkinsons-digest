@@ -164,6 +164,12 @@
         </div>
       </div>
     </article>
+  {% empty %}
+    <article class="message">
+      <div class="message-body">
+        <p>No results found. Try adjusting your search or filters.</p>
+      </div>
+    </article>
   {% endfor %}
   <nav class="pagination is-centered"
        role="navigation"
