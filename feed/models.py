@@ -1,8 +1,11 @@
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 
-from django.db import models
 from django.contrib.gis.db.models import PointField
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import Point
+from django.contrib.gis.measure import D
+from django.db import models
 
 from feed.constants import PD_TERMS
 
@@ -261,6 +264,89 @@ class FeedItemQuerySet(models.QuerySet):
         return self.filter(
             models.Q(trial__isnull=True)
             | models.Q(trial__relevance__in=[TrialRelevance.PD, TrialRelevance.RELATED])
+        )
+
+    def with_trial_score(self):
+        return self.annotate(
+            score=(
+                # Relevance
+                models.Case(
+                    models.When(
+                        trial__relevance=TrialRelevance.PD,
+                        then=models.Value(100),
+                    ),
+                    models.When(
+                        trial__relevance=TrialRelevance.RELATED,
+                        then=models.Value(50),
+                    ),
+                    default=models.Value(0),
+                    output_field=models.IntegerField(),
+                )
+                +
+                # Status
+                models.Case(
+                    models.When(
+                        trial__status=TrialStatus.RECRUITING,
+                        then=models.Value(100),
+                    ),
+                    models.When(
+                        trial__status=TrialStatus.NOT_YET_RECRUITING,
+                        then=models.Value(75),
+                    ),
+                    models.When(
+                        trial__status=TrialStatus.ACTIVE_NOT_RECRUITING,
+                        then=models.Value(25),
+                    ),
+                    default=models.Value(0),
+                    output_field=models.IntegerField(),
+                )
+                +
+                # Phase
+                models.Case(
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_3,
+                        then=models.Value(40),
+                    ),
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_2_3,
+                        then=models.Value(30),
+                    ),
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_2,
+                        then=models.Value(25),
+                    ),
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_1_2,
+                        then=models.Value(15),
+                    ),
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_1,
+                        then=models.Value(5),
+                    ),
+                    models.When(
+                        trial__phase=TrialPhase.PHASE_4,
+                        then=models.Value(20),
+                    ),
+                    default=models.Value(0),
+                    output_field=models.IntegerField(),
+                )
+            )
+        )
+
+    def within_radius(self, lat, lon, radius=25):
+        point = Point(lon, lat, srid=4326)
+        nearby_locations = (
+            TrialLocation.objects.filter(
+                trial=models.OuterRef("trial_id"),
+                point__dwithin=(point, D(mi=radius)),
+            )
+            .annotate(distance=Distance("point", point))
+            .order_by("distance")
+        )
+        return self.filter(models.Exists(nearby_locations.values("id")[:1])).annotate(
+            nearest_distance=models.Subquery(nearby_locations.values("distance")[:1]),
+            nearest_city=models.Subquery(nearby_locations.values("city")[:1]),
+            nearest_facility=models.Subquery(nearby_locations.values("facility")[:1]),
         )
 
 

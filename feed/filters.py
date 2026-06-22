@@ -1,13 +1,11 @@
 from django.conf import settings
-from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.geos import Point
-from django.contrib.gis.measure import D
-from django.db.models import Q, Exists, OuterRef, Subquery
+from django.core.exceptions import FieldError
+from django.db.models import Q, F
 
 import django_filters
 import requests
 
-from feed.models import FeedItem, TrialLocation, TrialStatus, TrialPhase
+from feed.models import FeedItem, TrialStatus, TrialPhase
 
 
 class FeedItemFilter(django_filters.FilterSet):
@@ -29,6 +27,15 @@ class FeedItemFilter(django_filters.FilterSet):
         field_name="article__source", lookup_expr="iexact"
     )
     zipcode = django_filters.CharFilter(method="filter_zipcode")
+    ordering = django_filters.ChoiceFilter(
+        field_name="ordering",
+        method="filter_ordering",
+        choices=(
+            ("date", "Date"),
+            ("score", "Relevance"),
+            ("distance", "Distance"),
+        ),
+    )
 
     class Meta:
         model = FeedItem
@@ -39,7 +46,7 @@ class FeedItemFilter(django_filters.FilterSet):
             case "research":
                 queryset = queryset.filter(paper__isnull=False)
             case "trial":
-                queryset = queryset.filter(trial__isnull=False)
+                queryset = queryset.filter(trial__isnull=False).with_trial_score()
             case "article":
                 queryset = queryset.filter(article__isnull=False)
             case _:
@@ -80,23 +87,23 @@ class FeedItemFilter(django_filters.FilterSet):
         lat, lon = get_latlong(value)
         if lat is None or lon is None:
             return queryset.none()
-        user_point = Point(lon, lat, srid=4326)
         try:
             radius = int(self.request.GET.get("distance", default_radius))
         except (ValueError, TypeError):
             radius = default_radius
-        nearby_locations = (
-            TrialLocation.objects.filter(
-                trial=OuterRef("trial_id"), point__dwithin=(user_point, D(mi=radius))
-            )
-            .annotate(distance=Distance("point", user_point))
-            .order_by("distance")
-        )
-        return queryset.filter(Exists(nearby_locations.values("id")[:1])).annotate(
-            nearest_distance=Subquery(nearby_locations.values("distance")[:1]),
-            nearest_city=Subquery(nearby_locations.values("city")[:1]),
-            nearest_facility=Subquery(nearby_locations.values("facility")[:1]),
-        )
+        return queryset.within_radius(lat, lon, radius)
+
+    def filter_ordering(self, queryset, name, value):
+        if value == "distance":
+            try:
+                return queryset.order_by(
+                    "nearest_distance", F("date").desc(nulls_last=True)
+                )
+            except FieldError:
+                pass
+        if value == "relevance":
+            return queryset.order_by("-score", F("date").desc(nulls_last=True))
+        return queryset.order_by(F("date").desc(nulls_last=True))
 
 
 def get_latlong(zipcode):

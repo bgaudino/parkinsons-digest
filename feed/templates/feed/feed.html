@@ -82,6 +82,19 @@
             </select>
           </div>
         </div>
+        <div class="control">
+          <div class="select">
+            <select name="ordering">
+              <option value="">Newest</option>
+              <option value="distance"
+                      {% if request.GET.ordering == "distance" and request.GET.zipcode %}selected{% endif %}>
+                Nearest
+              </option>
+              <option value="relevance"
+                      {% if request.GET.ordering == "relevance" %}selected{% endif %}>Most relevant</option>
+            </select>
+          </div>
+        </div>
         {% include "feed/partials/_filter_buttons.html" %}
       </div>
     {% endif %}
