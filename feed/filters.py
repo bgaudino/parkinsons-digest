@@ -32,7 +32,7 @@ class FeedItemFilter(django_filters.FilterSet):
         method="filter_ordering",
         choices=(
             ("date", "Date"),
-            ("score", "Relevance"),
+            ("relevance", "Relevance"),
             ("distance", "Distance"),
         ),
     )
