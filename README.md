@@ -2,7 +2,7 @@
 
 A Django app that aggregates Parkinson's disease clinical trials, research papers, and news into a single filterable feed.
 
-**Live site:** https://parkinsons-digest-055d912d3991.herokuapp.com/
+**Live site:** https://parkinsonsdigest.org/
 
 ## Local setup
 
@@ -55,7 +55,7 @@ uv run manage.py test
 [Ruff](https://docs.astral.sh/ruff/) for Python, [djLint](https://djlint.com/) for templates:
 
 ```bash
-uv run ruff check .   # lint Python
-uv run ruff format .        # format Python
-uv run djlint feed --reformat   # format templates
+uv run ruff check .
+uv run ruff format .
+uv run djlint feed --reformat
 ```
