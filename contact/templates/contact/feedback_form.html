@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Feedback - Parkinson's Digest{% endblock %}
+{% block content %}
+  <section class="section p-2">
+    <h1 class="title">Feedback</h1>
+    <p class="mb-5">
+      Have an idea, found a bug, spotted incorrect information, or just want to
+      get in touch? I'd love to hear from you.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="notification is-danger">{{ form.non_field_errors }}</div>{% endif %}
+      <div class="field">
+        <label class="label" for="{{ form.name.id_for_label }}">
+          Name <span class="has-text-grey">(optional)</span>
+        </label>
+        <div class="control">{{ form.name }}</div>
+        {% for error in form.name.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        <label class="label" for="{{ form.email.id_for_label }}">
+          Email <span class="has-text-grey">(optional)</span>
+        </label>
+        <div class="control">{{ form.email }}</div>
+        <p class="help">Only provide your email if you'd like a response.</p>
+        {% for error in form.email.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        <label class="label" for="{{ form.message.id_for_label }}">Message</label>
+        <div class="control">{{ form.message }}</div>
+        {% for error in form.message.errors %}<p class="help is-danger">{{ error }}</p>{% endfor %}
+      </div>
+      <div class="field">
+        <div class="control">
+          <button class="button is-primary" type="submit">Send Feedback</button>
+        </div>
+      </div>
+    </form>
+  </section>
+{% endblock %}

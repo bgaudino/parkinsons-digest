@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy - Parkinson's Digest{% endblock %}
+{% block content %}
+  <h1 class="title">Privacy Policy</h1>
+  <p class="subtitle is-6">Last updated: June 2026</p>
+  <div class="content">
+    <p>Parkinson's Digest respects your privacy.</p>
+    <h2>Information You Provide</h2>
+    <p>
+      If you submit feedback through the website, we may collect your message,
+      your name if provided, and your email address if provided. Providing your
+      name and email address is optional.
+    </p>
+    <h2>Server Logs</h2>
+    <p>
+      Like most websites, the hosting provider may automatically collect technical
+      information such as IP addresses, browser information, and request logs for
+      security and operational purposes.
+    </p>
+    <h2>How Information Is Used</h2>
+    <p>
+      Information submitted through the feedback form may be used to improve
+      Parkinson's Digest, respond to questions or feedback, and investigate bugs
+      or technical issues.
+    </p>
+    <p>We do not sell personal information.</p>
+    <h2>Third-Party Services</h2>
+    <p>
+      Parkinson's Digest is hosted by third-party service providers that may
+      process technical information necessary to operate the website.
+    </p>
+    <h2>Medical Disclaimer</h2>
+    <p>
+      Parkinson's Digest is provided for informational and educational purposes
+      only and does not provide medical advice, diagnosis, or treatment. Always
+      consult a qualified healthcare professional regarding medical decisions.
+    </p>
+    <h2>Contact</h2>
+    <p>
+      Questions about this Privacy Policy may be submitted through the
+      <a href="{% url 'feedback' %}">Feedback page</a>.
+    </p>
+    <h2>Changes</h2>
+    <p>
+      This Privacy Policy may be updated from time to time. Any changes will be
+      posted on this page.
+    </p>
+  </div>
+{% endblock %}

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
   <head>
@@ -9,48 +10,49 @@
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
     {% block extra_head %}{% endblock %}
-    <link rel="icon"
-          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
-    </head>
-    <body>
-      <nav class="container navbar"
-           role="navigation"
-           aria-label="main navigation">
-        <div class="navbar-brand">
-          <div class="navbar-item">
-            <strong>Parkinson's Digest</strong>
-          </div>
+    <link rel="icon" href="{% static 'feed/favicon.svg' %}">
+    <link rel="stylesheet" href="{% static 'feed/main.css' %}">
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="container is-flex is-justify-content-space-between is-align-items-center">
+        <a class="navbar-item" href="{% url 'feed' %}">
+          <strong>🧠 Parkinson's Digest</strong>
+        </a>
+        <a class="navbar-item" href="{% url 'feedback' %}">Give Feedback</a>
+      </div>
+    </nav>
+    <main class="main-content">
+      <section class="section pt-1">
+        <div class="container">
+          {% block content %}{% endblock %}
         </div>
-      </nav>
-      <main>
-        <section class="section pt-1">
-          <div class="container">
-            {% block content %}{% endblock %}
-          </div>
-        </section>
-      </main>
-      <footer class="footer">
-        <div class="container content">
-          <p>
-            <strong>Parkinson's Digest</strong> provides access to the latest
-            Parkinson's disease news, research, and clinical trials.
-          </p>
-          <p>
-            <a href="https://github.com/bgaudino/parkinsons-digest"
-               target="_blank"
-               rel="noopener noreferrer">Source Code</a>
-          </p>
-          <p class="is-size-7">
-            Created by Brian Gaudino.
-            Data sourced from ClinicalTrials.gov, PubMed, and other public sources.
-          </p>
-          <p class="is-size-7">
-            Parkinson's Digest is provided for informational and educational purposes
-            only and does not provide medical advice, diagnosis, or treatment.
-            Always consult a qualified healthcare professional regarding medical decisions.
-          </p>
-          <p class="is-size-7">© {% now "Y" %} Parkinson's Digest</p>
-        </div>
-      </footer>
-    </body>
-  </html>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="container content">
+        <p>
+          <strong>Parkinson's Digest</strong> provides access to the latest
+          Parkinson's disease news, research, and clinical trials.
+        </p>
+        <p>
+          <a href="{% url 'feedback' %}">Feedback</a> |
+          <a href="{% url 'privacy' %}">Privacy Policy</a> |
+          <a href="https://github.com/bgaudino/parkinsons-digest"
+             target="_blank"
+             rel="noopener noreferrer">Source Code</a>
+        </p>
+        <p class="is-size-7">
+          Created by Brian Gaudino.
+          Data sourced from ClinicalTrials.gov, PubMed, and other public sources.
+        </p>
+        <p class="is-size-7">
+          Parkinson's Digest is provided for informational and educational purposes
+          only and does not provide medical advice, diagnosis, or treatment.
+          Always consult a qualified healthcare professional regarding medical decisions.
+        </p>
+        <p class="is-size-7">© {% now "Y" %} Parkinson's Digest</p>
+      </div>
+    </footer>
+  </body>
+</html>

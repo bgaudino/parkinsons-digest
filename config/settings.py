@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.gis",
     "ingest",
     "feed",
+    "contact",
 ]
 
 MIDDLEWARE = [

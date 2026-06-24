@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Thank You - Parkinson's Digest{% endblock %}
+{% block content %}
+  <section class="section">
+    <div class="container" style="max-width: 700px;">
+      <h1 class="title">Thank You</h1>
+      <p class="mb-4">Your feedback has been received.</p>
+      <p class="mb-5">
+        Thank you for helping improve Parkinson's Digest.
+        I read every submission and appreciate suggestions,
+        bug reports, corrections, and ideas for new features.
+      </p>
+      <p class="mb-5">
+        Thank you for helping improve Parkinson's Digest.
+        As someone living with Parkinson's disease myself,
+        I built this site to make research, clinical trials,
+        and news easier to discover. Your feedback helps
+        guide what gets built next.
+      </p>
+      <div class="buttons">
+        <a href="{% url 'feed' %}" class="button is-primary">Return to Feed</a>
+        <a href="{% url 'feedback' %}" class="button is-light">Send More Feedback</a>
+      </div>
+    </div>
+  </section>
+{% endblock %}
